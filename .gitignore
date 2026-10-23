@@ -1,2 +1,5 @@
-# Registrations saved by the form. Personal data: never commit.
-corporate-series/data/*.csv
+node_modules
+dist
+.env
+.env.local
+*.local

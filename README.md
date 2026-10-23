@@ -1,126 +1,82 @@
-# FRFM – Corporate Table Soccer Series page
+# FRFM – Corporate Series page
 
-One event page for [frfm.ro](https://frfm.ro), the website of the Romanian Table Soccer Federation.
+An event page for the FRFM website ([frfm-web-ai-dev.pages.dev](https://frfm-web-ai-dev.pages.dev)), in English and Romanian.
 
-The page helps a company join a table soccer match series between companies. It explains the event, shows the steps to join, and collects the details of the company's contact person in a form.
+The page helps a company join a table football series between companies. It explains the event, shows the steps to join, and collects the details of the company's contact person.
 
-Planned URL: `https://frfm.ro/corporate-series/`
+Route: `/corporate-series`
+
+## Same stack as the live site
+
+The live site is a React single-page app. This repo uses the same stack and versions:
+
+| Part | Live site | This repo |
+| --- | --- | --- |
+| Framework | React 19.2 + Vite | React 19.2 + Vite 7 |
+| Routing | React Router 7.18 | React Router 7.18 |
+| Styles | Tailwind CSS 4.3.3, shadcn/ui components | Same; components ported 1:1 |
+| Fonts | Public Sans, Barlow Condensed | Same |
+| Icons | Lucide | Same |
+| Languages | i18next, EN + RO, one namespace per page | Same; new `corporate` namespace |
+| Backend | Supabase (tables + Edge Functions) | Same; new table + Edge Function |
+| Hosting | Cloudflare Pages | Cloudflare Pages ready (`public/_redirects`) |
+
+The design tokens in `src/index.css` are copied from the live CSS (`--frfm-primary: #003aa0`, flag yellow and red, radii, shadows).
+
+## Language switcher
+
+The page uses the same i18next setup as the live site. The language is saved in `localStorage` under the key `i18nextLng`. The EN/RO switcher in the header and in the mobile menu changes every string on the page. On the same domain, the choice is shared with the rest of the site.
+
+- English: `src/locales/en/corporate.ts`
+- Romanian: `src/locales/ro/corporate.ts` (typed against the English file, so a missing key fails the build)
 
 ## What is in this repo
 
 ```
-corporate-series/
-├── index.html                      The page
-├── contact.php                     Form handler (checks the data, saves it to CSV, sends an email)
-├── assets/css/corporate-series.css Styles: the Ave theme values of frfm.ro
-├── assets/js/corporate-series.js   Header, parallax, title animation, back-to-top, form submit
-├── assets/img/                     Put frfm-logo.png here (and hero.jpg if you use a photo)
-└── data/.htaccess                  Blocks web access to the saved registrations
+src/
+├── pages/corporate-series/
+│   ├── CorporateSeriesPage.tsx   The page   ← port this
+│   └── RegistrationForm.tsx      The form   ← port this
+├── locales/{en,ro}/corporate.ts  Page copy  ← port this (add "corporate" to the i18n namespaces)
+├── locales/{en,ro}/common.ts     Header/footer strings, copied from the live site (replica only)
+├── components/PageHero.tsx       Same as the live inner-page hero
+├── components/ui/                Button, Input, Textarea, Select, Checkbox (same as the live app)
+├── components/layout/            Header, mobile menu, footer: replica of the live site, do not port
+└── i18n.ts                       Same i18next setup as the live site
+supabase/
+├── migrations/…_corporate_series_registrations.sql
+└── functions/submit-corporate-registration/index.ts
 ```
 
-No build step. No dependencies to install. Fonts (Roboto) and icons (Font Awesome 5.15.4) load from Google Fonts and cdnjs, the same as on frfm.ro.
+## Port the page into the main app
 
-## Analysis: what the website is built with
+1. Copy `src/pages/corporate-series/` into the app.
+2. Copy `src/locales/en/corporate.ts` and `src/locales/ro/corporate.ts`, and add `corporate` to `resources` and `ns` in the app's i18n setup.
+3. Add the route `/corporate-series` inside the app's layout.
+4. Use the app's own `PageHero` and `components/ui/*`; they have the same API.
+5. Add a link to the page, for example from Competitions.
 
-### frfm.ro
+## Form and Supabase
 
-| Item | Finding |
-| --- | --- |
-| CMS | WordPress 6.4.5 |
-| Theme | Ave by LiquidThemes (`wp-content/themes/ave`) |
-| Page builder | WPBakery Page Builder 7.2, Slider Revolution 6.6.20 |
-| Front end | Bootstrap 3 grid, jQuery, Font Awesome 5, Ave "liquid" effects (split text, parallax, sticky header) |
-| Server | LiteSpeed (shared hosting with PHP) |
-| Language | English (`lang="en-US"`) |
+The form follows the pattern of the live contact form: `supabase.functions.invoke(...)`, a hidden `website` spam-trap field, and `{ ok: true }` on success.
 
-**Current state (23 Oct 2026): the homepage is broken.** The server holds only one static `index.html`. Somebody saved it from the browser ("Save page as") and uploaded it without its asset folder. All CSS, JavaScript, the logo and the hero photo return 404, and so do all WordPress paths (`wp-login.php`, `xmlrpc.php`, `wp-content/...`). Visitors see unstyled text. The white "website under construction" heading is invisible on the white page.
+1. Run the migration. It creates `corporate_series_registrations` with row-level security on and no public access.
+2. Deploy the function: `supabase functions deploy submit-corporate-registration`.
+3. Read registrations in the Supabase table editor. The file has an example policy, if admins need to read them in the app.
 
-**Fix for the homepage:** upload the folder `Romanian Table Soccer Federation – The official website of the Romanian Table Soccer Federation_files` to the web root, next to `index.html`. That folder was created on the computer that saved the page.
+Fields: company, contact name, email (required); option (company / team / colleagues) and number of players (required); phone, role, city, message, "keep me informed about future editions" (optional). The table also stores the language and the edition number, for future editions.
 
-### The market
+## Run locally
 
-Peer table soccer federations use a CMS or a site generator:
+```sh
+cp .env.example .env.local   # fill in the Supabase URL and anon key
+npm install
+npm run dev                  # http://localhost:5173 → /corporate-series
+npm run build                # typecheck + production build in dist/
+```
 
-| Site | Built with |
-| --- | --- |
-| ITSF – tablesoccer.org | Astro |
-| Germany – dtfb.de | Joomla |
-| Netherlands – tafelvoetbal.nl | Joomla |
-| Poland – ptsf.pl | WordPress |
-| Romania – frfm.ro | WordPress (Ave + WPBakery), served as a static snapshot |
-
-### Decision
-
-The page is static HTML, CSS and a small vanilla JavaScript file, plus one PHP file for the form.
-
-- It drops into the current hosting as it is. WordPress is not running on the server now.
-- It uses the Ave class names and values (`.btn`, `.iconbox`, `.lqd-contact-form`, `.accordion`, `.lqd-back-to-top`, Bootstrap 3 widths). It looks the same as the site, and it can move into WordPress + WPBakery later.
-- It does not copy the Ave theme files. Ave is a paid theme; the CSS here is written new, with the same values.
-
-## Design values taken from frfm.ro and Ave
-
-| Element | Value | Source |
-| --- | --- | --- |
-| Accent / button color | `#0029ff` (rgb 0, 41, 255) | frfm.ro header button |
-| Header | white bar, 10px padding, logo left with 11px padding, "Visit us on Facebook" bordered button right, sticky with shadow `0 2px 58px rgba(0,0,0,.17)` | frfm.ro inline styles |
-| Hero | full height (90vh), parallax background, white centered heading 40–72px (FitText), underline highlight 0.275em | frfm.ro hero row |
-| Font | Roboto, 16px, line height 1.7 | Ave defaults |
-| Text / headings | `#808291` / `#181b31`, headings weight 500 | Ave defaults |
-| Buttons | square corners, 1px border, large padding `1.3em 2.7em`, lift 1px on hover | Ave `.btn-lg` |
-| Form fields | 50px high, 1px `#d5d6de` border, `2em` side padding, square | Ave `.lqd-contact-form` |
-| Container | 750 / 970 / 1170px | Bootstrap 3 (Ave) |
-
-Two small, intended changes from Ave:
-
-- Typed text in the form fields is dark (`#181b31`), not light grey. Light grey text is hard to read.
-- Form fields have visible labels, not only placeholders.
-
-## Deploy
-
-1. Copy the `corporate-series/` folder to the web root of frfm.ro.
-2. Copy `frfm-logo.png` from the `_files` folder (see above) to `corporate-series/assets/img/`. Until you do this, the header shows the text "FRFM" in place of the logo.
-3. Open `corporate-series/contact.php` and set:
-   - `RECIPIENT_EMAIL`: the address that gets the registrations.
-   - `SENDER_EMAIL`: an address on the frfm.ro domain, for example `no-reply@frfm.ro`.
-4. Make sure PHP can write to `corporate-series/data/`.
-5. Send one test registration. Then open `https://frfm.ro/corporate-series/data/registrations.csv` in a browser. You must get **403 Forbidden**. If you can see the file, the `.htaccess` is not active: move `DATA_FILE` in `contact.php` to a folder outside the web root.
-
-The form also works without email: it always saves to the CSV file. Each registration goes to email **and** CSV, so no lead gets lost if the mail server fails.
+Without Supabase values the page still renders. The form then shows its error message.
 
 ## When the event goes live
 
-Search `index.html` for `EDIT WHEN LIVE`. Change:
-
-- the date (hero and "The event at a glance"),
-- the location (hero and "The event at a glance"),
-- the FAQ answer "When and where is the event?".
-
-To use a photo in the hero: put it in `assets/img/hero.jpg`, then on `<section class="cs-hero">` add the class `has-photo` and `style="--hero-image: url('assets/img/hero.jpg')"`.
-
-If the series repeats: change "First edition" in the hero and in "The event at a glance", and update the FAQ "Is this a one-time event?". Contacts who ticked "Keep me informed about future editions" have `future_events = yes` in the CSV.
-
-## The form
-
-| Field | Required |
-| --- | --- |
-| Company name, your name, work email | yes |
-| Option: company / team or department / group of colleagues | yes |
-| Number of players (estimate) | yes |
-| Consent to store the details | yes |
-| Phone, role, city, message, "keep me informed" | no |
-
-Protection in `contact.php`: server-side checks for every field, fixed lists for the option fields, a hidden spam-trap field, no line breaks in header values, and a guard against formulas in the CSV (Excel). The page shows errors next to each field. Without JavaScript, the browser checks the fields and `contact.php` answers with a small HTML page.
-
-The CSV holds personal data (GDPR). Delete a contact's row when that person asks. Do not commit the CSV; `.gitignore` blocks it.
-
-## Test on your computer
-
-```sh
-php -S 127.0.0.1:8000 -t corporate-series
-```
-
-Open `http://127.0.0.1:8000/`. The built-in PHP server does not read `.htaccess`, so the data-folder block only works on the real server.
-
-## Known limit
-
-Body text uses the Ave grey `#808291`. Its contrast on white is 3.8:1, below the WCAG AA level of 4.5:1. To fix it on this page, set `--color-font: #6b6d7c;` in `corporate-series.css` (5.1:1). The rest of frfm.ro uses the same grey, so change both together.
+Search the locale files for `EDIT WHEN LIVE`. Change `facts.dateValue`, `facts.venueValue` and the FAQ answer `when`, in both `en` and `ro`.

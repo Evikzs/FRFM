@@ -1,0 +1,144 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+/*
+ * Design tokens copied from the FRFM site (frfm-web-ai-dev.pages.dev).
+ * Keep these values in sync with the main app.
+ */
+:root {
+  color-scheme: light;
+
+  --frfm-primary: #003aa0;
+  --frfm-primary-hover: #002875;
+  --frfm-ink: #0a0f1c;
+  --frfm-ink-70: #3b4250;
+  --frfm-slate: #6b7280;
+  --frfm-yellow: #ffc72c;
+  --frfm-red: #d6242c;
+  --frfm-success: #1f9254;
+  --frfm-caution: #b4780a;
+  --frfm-page: #fafafa;
+  --frfm-surface: #fff;
+  --frfm-border: #e6e9ef;
+  --frfm-border-strong: #cbd6ea;
+  --frfm-tint: #eef3fc;
+  --frfm-muted: var(--frfm-slate);
+  --frfm-muted-2: var(--frfm-ink-70);
+
+  --background: var(--frfm-page);
+  --foreground: var(--frfm-ink);
+  --card: var(--frfm-surface);
+  --card-foreground: var(--frfm-ink);
+  --popover: var(--frfm-surface);
+  --popover-foreground: var(--frfm-ink);
+  --primary: var(--frfm-primary);
+  --primary-foreground: #fff;
+  --secondary: var(--frfm-tint);
+  --secondary-foreground: var(--frfm-primary);
+  --muted: var(--frfm-tint);
+  --muted-foreground: var(--frfm-slate);
+  --accent: var(--frfm-tint);
+  --accent-foreground: var(--frfm-primary);
+  --destructive: var(--frfm-red);
+  --destructive-foreground: #fff;
+  --border: var(--frfm-border);
+  --input: var(--frfm-border);
+  --ring: var(--frfm-primary);
+
+  --radius-band: 0px;
+  --radius-action: 2px;
+  --radius-field: 4px;
+  --radius-control: var(--radius-field);
+  --radius-card: 6px;
+  --radius-pill: 999px;
+  --radius: var(--radius-action);
+
+  --shadow-rest: none;
+  --shadow-hover: 0 14px 34px #0a0f1c17;
+  --shadow-overlay: 0 30px 70px #0a0f1c47;
+
+  --elevation-hover-lift: -3px;
+  --motion-hover: 0.16s;
+  --ease-hover: ease;
+  --motion-card-lift: 0.18s;
+  --ease-card-lift: ease;
+  --motion-dialog-in: 0.22s;
+  --ease-dialog: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-dialog-out: cubic-bezier(0.35, 0, 0.75, 0.6);
+  --motion-tab-switch: 0s;
+}
+
+@theme inline {
+  --font-sans: 'Public Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-condensed: 'Barlow Condensed', ui-sans-serif, system-ui, sans-serif;
+
+  --color-primary: var(--frfm-primary);
+  --color-primary-hover: var(--frfm-primary-hover);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-ink: var(--frfm-ink);
+  --color-ink-70: var(--frfm-ink-70);
+  --color-slate: var(--frfm-slate);
+  --color-yellow: var(--frfm-yellow);
+  --color-red: var(--frfm-red);
+  --color-success: var(--frfm-success);
+  --color-caution: var(--frfm-caution);
+  --color-page: var(--frfm-page);
+  --color-surface: var(--frfm-surface);
+  --color-tint: var(--frfm-tint);
+  --color-border-strong: var(--frfm-border-strong);
+  --color-muted-2: var(--frfm-muted-2);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --radius-band: var(--radius-band);
+  --radius-action: var(--radius-action);
+  --radius-field: var(--radius-field);
+  --radius-control: var(--radius-control);
+  --radius-card: var(--radius-card);
+  --radius-pill: var(--radius-pill);
+  --radius-md: var(--radius-action);
+
+  --shadow-rest: var(--shadow-rest);
+  --shadow-hover: var(--shadow-hover);
+  --shadow-overlay: var(--shadow-overlay);
+
+  --ease-dialog-in: var(--ease-dialog);
+  --ease-dialog-out: var(--ease-dialog-out);
+}
+
+@layer base {
+  body {
+    background-color: var(--frfm-page);
+    color: var(--frfm-ink);
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+}
+
+@utility scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
