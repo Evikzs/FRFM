@@ -19,7 +19,7 @@ The live site is a React single-page app. This repo uses the same stack and vers
 | Icons | Lucide | Same |
 | Languages | i18next, EN + RO, one namespace per page | Same; new `corporate` namespace |
 | Backend | Supabase (tables + Edge Functions) | Same; new table + Edge Function |
-| Hosting | Cloudflare Pages | Cloudflare Pages ready (`public/_redirects`) |
+| Hosting | Cloudflare Pages | Cloudflare Pages (`public/_redirects`) and Vercel (`vercel.json`) ready |
 
 The design tokens in `src/index.css` are copied from the live CSS (`--frfm-primary: #003aa0`, flag yellow and red, radii, shadows).
 
